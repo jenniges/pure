@@ -82,6 +82,16 @@ prompt_pure_preprompt_render() {
 	# Initialize the preprompt array.
 	local -a preprompt_parts
 
+	local -a flags
+
+	# tmux indicator
+	[[ -v TMUX ]] && flags+=('%K{black} %F{green}#%f %k')
+
+	# root indicator
+	(( $UID == 0 )) && flags+=('%K{black} %B%F{red}‼%f%b %k')
+
+	(( $#flags > 0 )) && preprompt_parts+=( ${(j. .)flags} )
+
 	# Set the path.
 	preprompt_parts+=('%K{black} %F{white}%~%f %k')
 
