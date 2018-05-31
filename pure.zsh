@@ -52,35 +52,6 @@ prompt_pure_check_cmd_exec_time() {
 	}
 }
 
-prompt_pure_set_title() {
-	setopt localoptions noshwordsplit
-
-	# emacs terminal does not support settings the title
-	(( ${+EMACS} )) && return
-
-	case $TTY in
-		# Don't set title over serial console.
-		/dev/ttyS[0-9]*) return;;
-	esac
-
-	# Show hostname if connected via ssh.
-	local hostname=
-	if [[ -n $prompt_pure_state[username] ]]; then
-		# Expand in-place in case ignore-escape is used.
-		hostname="${(%):-(%m) }"
-	fi
-
-	local -a opts
-	case $1 in
-		expand-prompt) opts=(-P);;
-		ignore-escape) opts=(-r);;
-	esac
-
-	# Set title atomically in one print statement so that it works
-	# when XTRACE is enabled.
-	print -n $opts $'\e]0;'${hostname}${2}$'\a'
-}
-
 prompt_pure_preexec() {
 	if [[ -n $prompt_pure_git_fetch_pattern ]]; then
 		# detect when git is performing pull/fetch (including git aliases).
@@ -93,9 +64,6 @@ prompt_pure_preexec() {
 	fi
 
 	typeset -g prompt_pure_cmd_timestamp=$EPOCHSECONDS
-
-	# shows the current dir and executed command in the title while a process is active
-	prompt_pure_set_title 'ignore-escape' "$PWD:t: $2"
 
 	# Disallow python virtualenv from updating the prompt, set it to 12 if
 	# untouched by the user to indicate that Pure modified it. Here we use
@@ -180,9 +148,6 @@ prompt_pure_precmd() {
 	# check exec time and store it in a variable
 	prompt_pure_check_cmd_exec_time
 	unset prompt_pure_cmd_timestamp
-
-	# shows the full path in the title
-	prompt_pure_set_title 'expand-prompt' '%~'
 
 	# preform async git dirty check and fetch
 	prompt_pure_async_tasks
