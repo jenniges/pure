@@ -521,6 +521,8 @@ prompt_pure_setup() {
 	# prompt turns red if the previous command didn't exit with 0
 	PROMPT+='%K{black}%(?.%F{14}.%F{9}) ${PURE_PROMPT_SYMBOL:-◆} %f%k '
 
+	PROMPT2='%K{black}%F{10} %_ %f%k '
+	PROMPT3='%K{black}%F{10} ?# %f%k '
 
 	# Store prompt expansion symbols for in-place expansion via (%). For
 	# some reason it does not work without storing them in a variable first.
