@@ -82,15 +82,9 @@ prompt_pure_preprompt_render() {
 	# Initialize the preprompt array.
 	local -a preprompt_parts
 
-	local -a flags
-
 	# tmux indicator
-	[[ -v TMUX ]] && flags+=('%K{black} %F{green}#%f %k')
-
-	# root indicator
-	(( $UID == 0 )) && flags+=('%K{black} %B%F{red}‼%f%b %k')
-
-	(( $#flags > 0 )) && preprompt_parts+=( ${(j. .)flags} )
+	[[ -v prompt_pure_state[tmux] ]] && preprompt_parts+=('${prompt_pure_state[tmux]}')
+	[[ -v prompt_pure_state[root] ]] && preprompt_parts+=('${prompt_pure_state[root]}')
 
 	# Set the path.
 	preprompt_parts+=('%K{black} %F{white}%~%f %k')
@@ -448,7 +442,6 @@ prompt_pure_state_setup() {
 
 	# Check SSH_CONNECTION and the current state.
 	local ssh_connection=${SSH_CONNECTION:-$PROMPT_PURE_SSH_CONNECTION}
-	local username
 	if [[ -z $ssh_connection ]] && (( $+commands[who] )); then
 		# When changing user on a remote system, the $SSH_CONNECTION
 		# environment variable can be lost, attempt detection via who.
@@ -479,15 +472,22 @@ prompt_pure_state_setup() {
 		unset MATCH MBEGIN MEND
 	fi
 
+	typeset -gA prompt_pure_state
+
 	# show username@host if logged in through SSH
 	if [[ -n $ssh_connection ]]; then
-		username='%K{black} %F{14}%n %k %K{black} %m%f%b %k'
+		prompt_pure_state+=(username '%K{black} %F{14}%n %k %K{black} %m%f%b %k')
 	fi
 
-	typeset -gA prompt_pure_state
-	prompt_pure_state=(
-		username "$username"
-	)
+	# tmux indicator
+	if [[ -v TMUX ]]; then
+		prompt_pure_state+=(tmux '%K{black} %F{green}#%f %k')
+	fi
+
+	# root indicator
+	if (( $UID == 0 )); then
+		prompt_pure_state+=(root '%K{black} %B%F{red}‼%f%b %k')
+	fi
 }
 
 prompt_pure_setup() {
