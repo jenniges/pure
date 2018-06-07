@@ -84,6 +84,7 @@ prompt_pure_preprompt_render() {
 
 	# tmux indicator
 	[[ -v prompt_pure_state[tmux] ]] && preprompt_parts+=('${prompt_pure_state[tmux]}')
+	[[ -v prompt_pure_state[remote] ]] && preprompt_parts+=('${prompt_pure_state[remote]}')
 	[[ -v prompt_pure_state[root] ]] && preprompt_parts+=('${prompt_pure_state[root]}')
 
 	# Set the path.
@@ -477,6 +478,7 @@ prompt_pure_state_setup() {
 	# show username@host if logged in through SSH
 	if [[ -n $ssh_connection ]]; then
 		prompt_pure_state+=(username '%K{black} %F{14}%n %k %K{black} %m%f%b %k')
+		prompt_pure_state+=(remote '%K{black} %F{blue}■%f %k')
 	fi
 
 	# tmux indicator
